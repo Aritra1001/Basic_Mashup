@@ -38,13 +38,16 @@ require(["js/qlik"], function (qlik) {
   let app = qlik.openApp("777e6a9b-c805-4575-9b16-fc1d13bc8bdc", config);
 
   //get objects -- inserted here --
+
   // Mapping Charts
+
   app.getObject("QV06", "VtfsZDc");
   app.getObject("QV05", "MRmuW");
   app.getObject("QV04", "BqZP");
-  app.getObject("QV01", "bsxkrg");
   app.getObject("QV02", "zswLzs");
   app.getObject("QV03", "WJYuPN");
+  app.getObject("QV01", "bsxkrg");
+
 
   // Mapping filters
 
@@ -53,6 +56,7 @@ require(["js/qlik"], function (qlik) {
   app.getObject("filter3", "nmgBqy");
   app.getObject("filter4", "YeVeak");
 
+
   // Filter methods
   $(document).on("click", "#undo", () => {
     app.back();
@@ -60,14 +64,18 @@ require(["js/qlik"], function (qlik) {
 
   $(document).on("click", "#clearAll", () => {
     app.clearAll();
+    // clearing the selections from the current selection 
+    $("#curSel").empty();
   });
 
   $(document).on("click", "#redo", () => {
     app.forward();
   });
 
+
+  // Custom filter buttons
   $(document).on("click", "#basketItem", () => {
-    app.field("BasketItem").selectValues(["CR-10001"], true);
+    app.field("BasketItem").selectValues(["CR-10001", "CR-10002", "CR-10003"], true);
   });
 
   $(document).on("click", "#area", () => {
@@ -84,6 +92,45 @@ require(["js/qlik"], function (qlik) {
   $(document).on('click', '#month', ()=>{
 	app.field("Month").selectValues(['Jan', 'Feb'], true);
   });
+
+
+  // Clearing the basketItem sleections
+  $(document).on('click', '#clearBasket', ()=>{
+     app.field('BasketItem').clear();
+  })
+
+
+  //Showing the current selections using getList
+  app.getList('SelectionObject', (data)=>{
+    // console.log("data",data);
+    data.qSelectionObject.qSelections.forEach((d)=>{
+      console.log("d", d);
+      d.qSelectedFieldSelectionInfo.forEach((f)=>{
+        console.log("f", f);
+        $('#curSel').append(`<div class="selections"><p>${f.qName}</p></div>`);
+      });
+    });
+
+  });
+
+
+  // Creating a generic object for getting kpi values
+  app.createGenericObject({
+    kpi1:{
+      qStringExpression: "Sum([Sales Margin Amount])/Sum([Sales Amount])" //getting the values from qlik sense expression
+    },
+    kpi2:{
+      qStringExpression: "${total_accounts}" //getting the value from qlik sense variables
+    },
+    kpi3:{
+      qStringExpression: "${TYvsLYSales}" //getting the value from qlik sense variables
+    }
+  }, (res)=>{
+    console.log("res", res);
+    $('#kpi1 h1').text(Math.trunc(res.kpi1*100)+ '%');
+    $('#kpi2 h1').text(Math.trunc(res.kpi2*100)+ '%');
+    $('#kpi3 h1').text(Math.trunc(res.kpi3*100)+ '%');
+  })
 
   //create cubes and lists -- inserted here --
 });
