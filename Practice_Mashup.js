@@ -96,6 +96,7 @@ require(["js/qlik"], function (qlik) {
 
   // Clearing the basketItem sleections
   $(document).on('click', '#clearBasket', ()=>{
+    $("#curSel").empty();
      app.field('BasketItem').clear();
   })
 
